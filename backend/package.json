@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "dev:init-data": "tsx src/tools/signInitData.ts",
+    "test:load": "tsx src/tools/loadApi.ts",
     "build": "tsup src/server.ts --format esm --target node20 --clean",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
