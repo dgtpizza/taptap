@@ -11,6 +11,10 @@ concurrency:
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    env:
+      # Ryuk (Testcontainers cleanup) is unneeded on ephemeral CI runners; skipping its
+      # Docker Hub pull removes a flaky point of failure (registry timeouts / rate limits).
+      TESTCONTAINERS_RYUK_DISABLED: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
