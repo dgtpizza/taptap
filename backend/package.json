@@ -1,0 +1,38 @@
+{
+  "name": "cryptoclicker-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "dev:init-data": "tsx src/tools/signInitData.ts",
+    "build": "tsup src/server.ts --format esm --target node20 --clean",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test",
+    "test:e2e:ui": "playwright test -c playwright.ui.config.ts",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/env": "^6.0.0",
+    "@fastify/type-provider-typebox": "^6.1.0",
+    "@sinclair/typebox": "^0.32.34",
+    "close-with-grace": "^2.5.0",
+    "fastify": "^5.8.5",
+    "fastify-plugin": "^5.1.0",
+    "mongoose": "^8.24.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.46.0",
+    "@testcontainers/mongodb": "^10.13.0",
+    "@types/node": "^20.14.0",
+    "testcontainers": "^10.13.0",
+    "tsup": "^8.2.4",
+    "tsx": "^4.17.0",
+    "typescript": "^5.8.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^2.0.5"
+  }
+}
