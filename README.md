@@ -13,8 +13,8 @@ Telegram Mini App: кликер с лидербордом. Игрок тапае
 </p>
 
 <p align="center">
-  <video src="https://github.com/dgtpizza/taptap/raw/main/screenshots/video.mov" controls width="60%">
-    <a href="https://github.com/dgtpizza/taptap/raw/main/screenshots/video.mov">Демо (видео)</a>
+  <video src="https://github.com/dgtpizza/taptap/raw/main/screenshots/video.mp4" controls width="60%">
+    <a href="https://github.com/dgtpizza/taptap/raw/main/screenshots/video.mp4">Демо (видео)</a>
   </video>
 </p>
 
