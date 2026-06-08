@@ -14,7 +14,6 @@ type State = {
   snap: Snap
   status: Status
   error: string | null
-  unauthorized: boolean
   errorVersion: number
   pending: number
   inFlight: Batch | null
@@ -23,11 +22,11 @@ type State = {
 type Action =
   | { type: 'load:start' }
   | { type: 'load:success'; snap: Snap; queue?: StoredQueue | null }
-  | { type: 'load:error'; error: string; unauthorized: boolean }
+  | { type: 'load:error'; error: string }
   | { type: 'tap' }
   | { type: 'flush:start'; batch: Batch }
   | { type: 'flush:success'; snap: Snap; accepted: number }
-  | { type: 'flush:error'; error: string; unauthorized: boolean }
+  | { type: 'flush:error'; error: string }
   | { type: 'tick' }
 
 export type ClickerState = {
@@ -36,7 +35,6 @@ export type ClickerState = {
   energy: number
   energyMax: number
   error: string | null
-  unauthorized: boolean
   errorVersion: number
   tap: (trusted: boolean) => void
   retry: () => void
@@ -46,7 +44,6 @@ const initialState: State = {
   snap: { clicks: 0, energy: 0, energyMax: ENERGY_MAX, regenPerSec: REGEN_PER_SEC, at: Date.now() },
   status: 'loading',
   error: null,
-  unauthorized: false,
   errorVersion: 0,
   pending: 0,
   inFlight: null,
@@ -106,12 +103,11 @@ function reducer(state: State, action: Action): State {
         snap: action.snap,
         status: 'ready',
         error: null,
-        unauthorized: false,
         pending: action.queue?.pending ?? state.pending,
         inFlight: action.queue?.inFlight ?? state.inFlight,
       }
     case 'load:error':
-      return { ...state, status: 'error', error: action.error, unauthorized: action.unauthorized }
+      return { ...state, status: 'error', error: action.error }
     case 'tap':
       return { ...state, pending: state.pending + 1, tick: state.tick + 1 }
     case 'flush:start':
@@ -133,7 +129,6 @@ function reducer(state: State, action: Action): State {
         ...state,
         error: action.error,
         errorVersion: state.errorVersion + 1,
-        unauthorized: action.unauthorized || state.unauthorized,
         tick: state.tick + 1,
       }
     case 'tick':
@@ -162,10 +157,12 @@ function liveEnergy(state: State): number {
   return Math.max(0, regeneratedEnergy(state.snap) - reserved(state))
 }
 
-export function useClicker(enabled = true): ClickerState {
+export function useClicker(enabled = true, onUnauthorized?: () => void): ClickerState {
   const [state, baseDispatch] = useReducer(reducer, initialState)
   const stateRef = useRef(state)
   const sendingRef = useRef(false)
+  const onUnauthorizedRef = useRef(onUnauthorized)
+  onUnauthorizedRef.current = onUnauthorized
   // One extra render after regen settles, so the meter lands on the cap, not cap-1.
   const animatingRef = useRef(false)
 
@@ -184,11 +181,8 @@ export function useClicker(enabled = true): ClickerState {
         .catch((err: unknown) => {
           if (isAbortError(err)) return
           reportError(err, { area: 'clicker', action: 'load-me' })
-          dispatch({
-            type: 'load:error',
-            error: errorMessage(err, t(keys.couldNotLoadProfile)),
-            unauthorized: isUnauthorized(err),
-          })
+          if (isUnauthorized(err)) onUnauthorizedRef.current?.()
+          dispatch({ type: 'load:error', error: errorMessage(err, t(keys.couldNotLoadProfile)) })
         })
     },
     [dispatch],
@@ -222,11 +216,8 @@ export function useClicker(enabled = true): ClickerState {
         .then((r) => dispatch({ type: 'flush:success', snap: toSnap(r), accepted: r.accepted }))
         .catch((err: unknown) => {
           reportError(err, { area: 'clicker', action: 'flush-clicks' })
-          dispatch({
-            type: 'flush:error',
-            error: errorMessage(err, t(keys.couldNotSyncClicks)),
-            unauthorized: isUnauthorized(err),
-          })
+          if (isUnauthorized(err)) onUnauthorizedRef.current?.()
+          dispatch({ type: 'flush:error', error: errorMessage(err, t(keys.couldNotSyncClicks)) })
         })
         .finally(() => {
           sendingRef.current = false
@@ -279,7 +270,6 @@ export function useClicker(enabled = true): ClickerState {
     energy: Math.floor(liveEnergy(state)),
     energyMax: state.snap.energyMax,
     error: state.error,
-    unauthorized: state.unauthorized,
     errorVersion: state.errorVersion,
     tap,
     retry,
