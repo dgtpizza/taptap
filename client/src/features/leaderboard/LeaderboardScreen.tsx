@@ -5,23 +5,15 @@ import { LeaderboardReady } from '@/features/leaderboard/ui/LeaderboardReady'
 import { LeaderboardSkeleton } from '@/features/leaderboard/ui/LeaderboardSkeleton'
 import { keys, t } from '@/shared/i18n'
 import { RetryButton, StateMessage } from '@/shared/ui/StateMessage'
-import { LockIcon, WifiOffIcon } from '@/shared/ui/icons'
+import { WifiOffIcon } from '@/shared/ui/icons'
 
 export const LeaderboardScreen = memo(function LeaderboardScreen() {
-  const { data, error, retry, unauthorized } = useLeaderboardStore()
+  const { data, error, retry } = useLeaderboardStore()
   const empty = data !== null && data.top.length === 0
 
   return (
     <main className="relative min-h-0 flex-1">
-      {unauthorized ? (
-        <StateMessage
-          icon={<LockIcon size={40} />}
-          iconClassName="text-danger"
-          title={t(keys.sessionExpired)}
-          body={t(keys.sessionExpiredBody)}
-          footer={<RetryButton label={t(keys.reload)} onClick={() => window.location.reload()} />}
-        />
-      ) : data ? (
+      {data ? (
         empty ? (
           <EmptyLeaderboard />
         ) : (

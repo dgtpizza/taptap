@@ -1,4 +1,5 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { StoreProvider } from '@/app/store/StoreProvider'
 import { ClickerScreen } from '@/features/clicker/ClickerScreen'
 import { LeaderboardScreen } from '@/features/leaderboard/LeaderboardScreen'
 import { NoTelegram, NotFound, SessionExpired } from '@/features/system/SystemScreens'
@@ -17,9 +18,17 @@ export function App() {
   return (
     <Routes>
       <Route element={<RequireAuth />}>
-        <Route element={<AppShell />}>
-          <Route path="/" element={<ClickerScreen />} />
-          <Route path="/leaderboard" element={<LeaderboardScreen />} />
+        <Route
+          element={
+            <StoreProvider>
+              <Outlet />
+            </StoreProvider>
+          }
+        >
+          <Route element={<AppShell />}>
+            <Route path="/" element={<ClickerScreen />} />
+            <Route path="/leaderboard" element={<LeaderboardScreen />} />
+          </Route>
         </Route>
       </Route>
       <Route path="/welcome" element={<NoTelegram />} />

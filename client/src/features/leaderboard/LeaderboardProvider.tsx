@@ -2,14 +2,13 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useLocation } from 'react-router-dom'
 import { POLL_MS } from '@shared/constants'
 import type { LeaderboardResponse } from '@shared/contract'
-import { api, isUnauthorized } from '@/shared/api'
+import { api } from '@/shared/api'
 import { errorMessage, isAbortError, reportError } from '@/shared/errors'
 import { keys, t } from '@/shared/i18n'
 
 export type LeaderboardState = {
   data: LeaderboardResponse | null
   error: string | null
-  unauthorized: boolean
   retry: () => void
 }
 
@@ -19,7 +18,6 @@ const LeaderboardContext = createContext<LeaderboardState | null>(null)
 export function LeaderboardProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<LeaderboardResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [unauthorized, setUnauthorized] = useState(false)
   const [reload, setReload] = useState(0)
   const active = useLocation().pathname === '/leaderboard'
 
@@ -38,12 +36,10 @@ export function LeaderboardProvider({ children }: { children: ReactNode }) {
           if (!alive) return
           setData(d)
           setError(null)
-          setUnauthorized(false)
         })
         .catch((err: unknown) => {
           if (isAbortError(err) || !alive) return
           reportError(err, { area: 'leaderboard', action: 'load' })
-          setUnauthorized(isUnauthorized(err))
           setError(errorMessage(err, t(keys.couldNotLoadLeaderboard)))
         })
     }
@@ -64,13 +60,12 @@ export function LeaderboardProvider({ children }: { children: ReactNode }) {
 
   const retry = useCallback(() => {
     setError(null)
-    setUnauthorized(false)
     setReload((n) => n + 1)
   }, [])
 
   const value = useMemo<LeaderboardState>(
-    () => ({ data, error, unauthorized, retry }),
-    [data, error, unauthorized, retry],
+    () => ({ data, error, retry }),
+    [data, error, retry],
   )
 
   return <LeaderboardContext.Provider value={value}>{children}</LeaderboardContext.Provider>

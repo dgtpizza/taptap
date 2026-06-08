@@ -54,12 +54,6 @@ describe('useClicker - profile loading', () => {
     expect(result.current.error).toBe('profile down')
   })
 
-  it('does not load profile when enabled=false', () => {
-    const { result } = renderHook(() => useClicker(false))
-    expect(meMock).not.toHaveBeenCalled()
-    expect(result.current.status).toBe('loading')
-  })
-
   it('retry() loads the profile again', async () => {
     meMock.mockRejectedValueOnce(new Error('down'))
     const { result } = renderHook(() => useClicker())

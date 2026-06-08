@@ -1,16 +1,16 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { onUnauthorized } from '@/shared/api'
 
 export type SessionState = {
   unauthorized: boolean
-  expire: () => void
 }
 
 const SessionContext = createContext<SessionState | null>(null)
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [unauthorized, setUnauthorized] = useState(false)
-  const expire = useCallback(() => setUnauthorized(true), [])
-  const value = useMemo<SessionState>(() => ({ unauthorized, expire }), [unauthorized, expire])
+  useEffect(() => onUnauthorized(() => setUnauthorized(true)), [])
+  const value = useMemo<SessionState>(() => ({ unauthorized }), [unauthorized])
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
 }
 

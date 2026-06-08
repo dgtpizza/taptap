@@ -1,13 +1,10 @@
 import { createContext, useContext, type ReactNode } from 'react'
 import { useClicker, type ClickerState } from '@/features/clicker/useClicker'
-import { useSession } from '@/shared/session'
-import { hasInitData } from '@/shared/telegram'
 
 const ClickerStoreContext = createContext<ClickerState | null>(null)
 
 export function ClickerProvider({ children }: { children: ReactNode }) {
-  const { expire } = useSession()
-  const clicker = useClicker(hasInitData(), expire)
+  const clicker = useClicker()
   return <ClickerStoreContext.Provider value={clicker}>{children}</ClickerStoreContext.Provider>
 }
 

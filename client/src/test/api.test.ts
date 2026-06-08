@@ -5,7 +5,7 @@ vi.mock('@/shared/telegram', () => ({
   getInitData: vi.fn(() => 'INIT_DATA_123'),
 }))
 
-import { api, ApiError } from '@/shared/api'
+import { api, ApiError, onUnauthorized } from '@/shared/api'
 import { getInitData } from '@/shared/telegram'
 
 function jsonResponse(body: unknown, init: { ok?: boolean; status?: number } = {}): Response {
@@ -134,5 +134,25 @@ describe('api.leaderboard', () => {
     expect(res).toEqual(payload)
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(init.signal).toBe(controller.signal)
+  })
+})
+
+describe('onUnauthorized handler', () => {
+  it('fires on a 401, ignores other statuses, and stops after unsubscribe', async () => {
+    const handler = vi.fn()
+    const off = onUnauthorized(handler)
+
+    fetchMock.mockResolvedValueOnce(jsonResponse({}, { ok: false, status: 401 }))
+    await api.me().catch(() => {})
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    fetchMock.mockResolvedValueOnce(jsonResponse({}, { ok: false, status: 500 }))
+    await api.me().catch(() => {})
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    off()
+    fetchMock.mockResolvedValueOnce(jsonResponse({}, { ok: false, status: 401 }))
+    await api.me().catch(() => {})
+    expect(handler).toHaveBeenCalledTimes(1)
   })
 })

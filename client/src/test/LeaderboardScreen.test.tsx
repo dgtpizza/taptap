@@ -7,7 +7,6 @@ import type { LeaderboardResponse } from '@shared/contract'
 
 vi.mock('@/shared/api', () => ({
   api: { leaderboard: vi.fn() },
-  isUnauthorized: (err: unknown) => err instanceof Error && err.message === 'unauthorized',
 }))
 
 import { api } from '@/shared/api'
@@ -64,13 +63,6 @@ describe('LeaderboardScreen', () => {
     renderApp()
     expect(await screen.findByTestId('state-title')).toHaveTextContent('Leaderboard unavailable')
     expect(screen.getByTestId('state-action')).toHaveTextContent('Retry')
-  })
-
-  it('unauthorized: shows session expired state', async () => {
-    leaderboardMock.mockRejectedValueOnce(new Error('unauthorized'))
-    renderApp()
-    expect(await screen.findByTestId('state-title')).toHaveTextContent('Session expired')
-    expect(screen.getByTestId('state-action')).toHaveTextContent('Reload')
   })
 
   it('error: Retry loads data again', async () => {

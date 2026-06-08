@@ -20,6 +20,7 @@ function GoldColumn({ entry }: { entry: LeaderboardEntry }) {
         initialClassName="text-[32px] text-gold-shadow"
         badge={1}
         badgeClassName="w-7 h-7 bg-rank-gold text-[13px]"
+        username={entry.username}
       />
       <span className="text-[15px] font-semibold text-ink">{entry.firstName}</span>
       <span className="text-[15px] font-bold text-rank-gold tabular-nums">
@@ -46,6 +47,7 @@ function SilverColumn({ entry }: { entry: LeaderboardEntry }) {
         initialClassName="text-[24px] text-ink"
         badge={2}
         badgeClassName="w-6 h-6 bg-rank-silver text-[12px]"
+        username={entry.username}
       />
       <span className="text-[14px] font-semibold text-ink">{entry.firstName}</span>
       <span className="text-[13px] font-semibold text-muted tabular-nums">
@@ -72,6 +74,7 @@ function BronzeColumn({ entry }: { entry: LeaderboardEntry }) {
         initialClassName="text-[24px] text-ink"
         badge={3}
         badgeClassName="w-6 h-6 bg-rank-bronze text-[12px]"
+        username={entry.username}
       />
       <span className="text-[14px] font-semibold text-ink">{entry.firstName}</span>
       <span className="text-[13px] font-semibold text-muted tabular-nums">

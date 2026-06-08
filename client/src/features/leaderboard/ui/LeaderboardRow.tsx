@@ -1,5 +1,6 @@
 import type { LeaderboardEntry } from '@shared/contract'
 import { avatarColor } from '@/shared/ui/avatar'
+import { Userpic } from '@/shared/ui/Userpic'
 import { formatCount } from '@/shared/format'
 import { keys, t } from '@/shared/i18n'
 
@@ -24,9 +25,14 @@ export function LeaderboardRow({
         {entry.rank}
       </span>
       <span
-        className="h-9 w-9 shrink-0 rounded-pill"
+        className="relative h-9 w-9 shrink-0 overflow-hidden rounded-pill"
         style={{ background: isMe ? '#3390EC' : avatarColor(String(entry.telegramId)) }}
-      />
+      >
+        <Userpic
+          username={entry.username}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </span>
       <span
         data-testid="row-name"
         className={`min-w-0 flex-1 truncate text-[15px]${isMe ? ' font-semibold text-accent' : ' font-medium text-ink'}`}

@@ -12,8 +12,13 @@ export class ApiError extends Error {
   }
 }
 
-export function isUnauthorized(err: unknown): boolean {
-  return err instanceof ApiError && err.status === 401
+let unauthorizedHandler: (() => void) | null = null
+
+export function onUnauthorized(handler: () => void): () => void {
+  unauthorizedHandler = handler
+  return () => {
+    if (unauthorizedHandler === handler) unauthorizedHandler = null
+  }
 }
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -27,6 +32,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   })
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null
+    if (res.status === 401) unauthorizedHandler?.()
     throw new ApiError(body?.error?.message ?? `HTTP ${res.status}`, res.status)
   }
   return res.json() as Promise<T>

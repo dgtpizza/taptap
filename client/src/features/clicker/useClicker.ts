@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 import { ENERGY_MAX, ENERGY_TICK_MS, FLUSH_MS, MAX_BATCH, REGEN_PER_SEC } from '@shared/constants'
 import { regeneratedEnergy, type EnergySnapshot } from '@shared/energy'
-import { api, isUnauthorized } from '@/shared/api'
+import { api } from '@/shared/api'
 import { errorMessage, isAbortError, reportError } from '@/shared/errors'
 import { keys, t } from '@/shared/i18n'
 import { getWebApp } from '@/shared/telegram'
@@ -157,12 +157,10 @@ function liveEnergy(state: State): number {
   return Math.max(0, regeneratedEnergy(state.snap) - reserved(state))
 }
 
-export function useClicker(enabled = true, onUnauthorized?: () => void): ClickerState {
+export function useClicker(): ClickerState {
   const [state, baseDispatch] = useReducer(reducer, initialState)
   const stateRef = useRef(state)
   const sendingRef = useRef(false)
-  const onUnauthorizedRef = useRef(onUnauthorized)
-  onUnauthorizedRef.current = onUnauthorized
   // One extra render after regen settles, so the meter lands on the cap, not cap-1.
   const animatingRef = useRef(false)
 
@@ -181,7 +179,6 @@ export function useClicker(enabled = true, onUnauthorized?: () => void): Clicker
         .catch((err: unknown) => {
           if (isAbortError(err)) return
           reportError(err, { area: 'clicker', action: 'load-me' })
-          if (isUnauthorized(err)) onUnauthorizedRef.current?.()
           dispatch({ type: 'load:error', error: errorMessage(err, t(keys.couldNotLoadProfile)) })
         })
     },
@@ -189,11 +186,10 @@ export function useClicker(enabled = true, onUnauthorized?: () => void): Clicker
   )
 
   useEffect(() => {
-    if (!enabled) return
     const controller = new AbortController()
     loadMe(controller.signal)
     return () => controller.abort()
-  }, [enabled, loadMe])
+  }, [loadMe])
 
   const retry = useCallback(() => {
     loadMe()
@@ -216,7 +212,6 @@ export function useClicker(enabled = true, onUnauthorized?: () => void): Clicker
         .then((r) => dispatch({ type: 'flush:success', snap: toSnap(r), accepted: r.accepted }))
         .catch((err: unknown) => {
           reportError(err, { area: 'clicker', action: 'flush-clicks' })
-          if (isUnauthorized(err)) onUnauthorizedRef.current?.()
           dispatch({ type: 'flush:error', error: errorMessage(err, t(keys.couldNotSyncClicks)) })
         })
         .finally(() => {
@@ -227,7 +222,6 @@ export function useClicker(enabled = true, onUnauthorized?: () => void): Clicker
   )
 
   useEffect(() => {
-    if (!enabled) return
     const tickId = setInterval(() => {
       const s = stateRef.current
       const animating = s.pending > 0 || s.inFlight !== null || liveEnergy(s) < s.snap.energyMax
@@ -239,10 +233,9 @@ export function useClicker(enabled = true, onUnauthorized?: () => void): Clicker
       clearInterval(tickId)
       clearInterval(flushId)
     }
-  }, [dispatch, enabled, flushPending])
+  }, [dispatch, flushPending])
 
   useEffect(() => {
-    if (!enabled) return
     const flushWhenLeaving = () => flushPending(true)
     const flushWhenHidden = () => {
       if (document.visibilityState === 'hidden') flushPending(true)
@@ -253,15 +246,15 @@ export function useClicker(enabled = true, onUnauthorized?: () => void): Clicker
       window.removeEventListener('pagehide', flushWhenLeaving)
       document.removeEventListener('visibilitychange', flushWhenHidden)
     }
-  }, [enabled, flushPending])
+  }, [flushPending])
 
   const tap = useCallback(
     (trusted: boolean) => {
       const current = stateRef.current
-      if (!enabled || current.status !== 'ready' || !trusted || liveEnergy(current) < 1) return
+      if (current.status !== 'ready' || !trusted || liveEnergy(current) < 1) return
       dispatch({ type: 'tap' })
     },
-    [dispatch, enabled],
+    [dispatch],
   )
 
   return {

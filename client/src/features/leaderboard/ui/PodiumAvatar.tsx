@@ -1,3 +1,5 @@
+import { Userpic } from '@/shared/ui/Userpic'
+
 export function PodiumAvatar({
   size,
   ringClassName,
@@ -7,6 +9,7 @@ export function PodiumAvatar({
   initialClassName,
   badge,
   badgeClassName,
+  username,
 }: {
   size: number
   ringClassName: string
@@ -16,6 +19,7 @@ export function PodiumAvatar({
   initialClassName: string
   badge: number
   badgeClassName: string
+  username?: string
 }) {
   // Tailwind ring utilities require static class names for JIT scanning.
   // Use box-shadow to render the ring so arbitrary widths (2.5px, 3px) work reliably.
@@ -39,6 +43,10 @@ export function PodiumAvatar({
         >
           {initial}
         </span>
+        <Userpic
+          username={username}
+          className="absolute inset-0 h-full w-full rounded-full object-cover"
+        />
       </div>
       <span
         className={`absolute bottom-0 right-0 flex items-center justify-center rounded-pill ring-2 ring-surface ${badgeClassName}`}
