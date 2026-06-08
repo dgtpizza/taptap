@@ -1,0 +1,167 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-canvas: #e8ebf2;
+  --color-surface: #ffffff;
+  --color-surface-strong: #ffffff;
+  --color-sunken: #dfe4ec;
+
+  --color-accent: #3390ec;
+  --color-accent-pressed: #2c7dd1;
+  --color-accent-soft: #3390ec1f;
+  --color-on-accent: #ffffff;
+
+  --color-border-subtle: #0f141a14;
+  --color-border-strong: #0f141a26;
+  --color-overlay: #0f141a0a;
+
+  --color-danger: #eb5757;
+  --color-success: #3dd68c;
+  --color-warning: #f2b33d;
+
+  --color-gold: #f5c24a;
+  --color-gold-deep: #c8881c;
+  --color-gold-light: #ffe17a;
+  --color-gold-shadow: #7a4e0c;
+  --color-gold-glow: #f5c24a40;
+
+  --color-rank-gold: #f5c24a;
+  --color-rank-silver: #c0c8d4;
+  --color-rank-bronze: #d88a4e;
+
+  --color-ink: #0f141a;
+  --color-muted: #67727e;
+  --color-faint: #a2abb6;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+
+  --radius-button: 12px;
+  --radius-card: 16px;
+  --radius-cell: 14px;
+  --radius-pill: 999px;
+
+  --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px));
+  --shell-top: max(calc(var(--safe-top) + var(--tg-content-safe-area-inset-top, 0px)), 8px);
+  --shell-bottom: max(var(--safe-bottom), 0px);
+  --tabbar-clearance: calc(max(var(--shell-bottom) + 12px, 28px) + 60px);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* In @layer base so text-color utilities (text-on-accent, text-muted, etc.) still win over it.
+   Unlayered, this `color: inherit` would beat every Tailwind text-* class on a button. */
+@layer base {
+  button {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes particle-fly {
+  from {
+    transform: translate(-50%, -50%) translate(0, 0) rotate(var(--r0)) scale(0.5);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  65% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) rotate(var(--r1)) scale(var(--s1));
+    opacity: 0;
+  }
+}
+
+@keyframes star-emit {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0) rotate(var(--r0)) scale(0.3);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--o);
+  }
+  70% {
+    opacity: var(--o);
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) rotate(var(--r1)) scale(var(--s1));
+    opacity: 0;
+  }
+}
+
+@keyframes onair {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes blob-a {
+  from {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  to {
+    transform: translate(6%, 8%) scale(1.18) rotate(8deg);
+  }
+}
+
+@keyframes blob-b {
+  from {
+    transform: translate(0, 0) scale(1.12) rotate(0deg);
+  }
+  to {
+    transform: translate(-7%, -5%) scale(1) rotate(-10deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
