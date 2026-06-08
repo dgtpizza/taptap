@@ -84,4 +84,29 @@ describe('Clicker (Mongo)', () => {
     expect(replay.clicks).toBe(7)
     expect(replay.lastAccepted).toBe(0)
   })
+
+  it('counts concurrent requests with the same nonce only once', async () => {
+    const now = new Date()
+    await db.User.create({
+      _id: 602,
+      firstName: 'RaceRetry',
+      clicks: 0,
+      energy: 100,
+      energyAt: now,
+      createdAt: now,
+      lastVisitedAt: now,
+    })
+
+    const results = await Promise.all([
+      applyClicks(db.User, 602, 7, 'batch-race'),
+      applyClicks(db.User, 602, 7, 'batch-race'),
+      applyClicks(db.User, 602, 7, 'batch-race'),
+    ])
+
+    const fresh = await db.User.findById(602).lean()
+
+    expect(fresh?.clicks).toBe(7)
+    expect(results.reduce((sum, doc) => sum + (doc.lastAccepted ?? 0), 0)).toBe(7)
+    expect(fresh?.recentNonces?.filter((nonce) => nonce === 'batch-race')).toHaveLength(1)
+  })
 })
