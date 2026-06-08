@@ -1,0 +1,12 @@
+import { LucideIcon, type IconProps } from '@/shared/ui/icons/Icon'
+
+export function SearchXIcon(props: IconProps) {
+  return (
+    <LucideIcon {...props}>
+      <path d="m13.5 8.5-5 5" />
+      <path d="m8.5 8.5 5 5" />
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </LucideIcon>
+  )
+}

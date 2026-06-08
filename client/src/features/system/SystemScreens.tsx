@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { keys, t } from '@/shared/i18n'
 import { FullScreenState, RetryButton } from '@/shared/ui/StateMessage'
-import { LockIcon } from '@/shared/ui/icons'
+import { LockIcon, SearchXIcon } from '@/shared/ui/icons'
 
 export function NoTelegram() {
   return <FullScreenState title={t(keys.needTelegram)} body={t(keys.openFromTelegram)} />
@@ -22,6 +22,8 @@ export function SessionExpired() {
 export function NotFound() {
   return (
     <FullScreenState
+      icon={<SearchXIcon size={40} />}
+      iconClassName="text-danger"
       title={t(keys.notFound)}
       body={t(keys.notFoundBody)}
       footer={
