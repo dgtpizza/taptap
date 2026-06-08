@@ -12,7 +12,6 @@ function state(over: Partial<ClickerState> = {}): ClickerState {
     energy: 500,
     energyMax: 1000,
     error: null,
-    unauthorized: false,
     errorVersion: 0,
     tap: vi.fn(),
     retry: vi.fn(),
