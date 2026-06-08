@@ -12,6 +12,12 @@ Telegram Mini App: кликер с лидербордом. Игрок тапае
   <img src="https://raw.githubusercontent.com/dgtpizza/taptap/main/screenshots/notfound.png" alt="404" width="19%" />
 </p>
 
+<p align="center">
+  <video src="https://github.com/dgtpizza/taptap/raw/main/screenshots/video.mov" controls width="60%">
+    <a href="https://github.com/dgtpizza/taptap/raw/main/screenshots/video.mov">Демо (видео)</a>
+  </video>
+</p>
+
 > [!NOTE]
 > Стек ограничен условиями задания: **только TypeScript, React, Node.js и MongoDB**. Без Redis, очередей и тяжёлых фреймворков.
 
