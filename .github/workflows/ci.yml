@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+            client/package-lock.json
+      - run: npm ci
+      - run: npm --prefix backend ci
+      - run: npm --prefix client ci
+      - name: Lint
+        run: npx eslint . --max-warnings 0
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Backend unit tests
+        run: npm --prefix backend run test:unit
+      - name: Client unit tests
+        run: npm --prefix client test
+      - name: Build client
+        run: npm --prefix client run build
+      - name: Build backend
+        run: npm --prefix backend run build
+      - name: Install Playwright Chromium
+        working-directory: backend
+        run: npx playwright install --with-deps chromium
+      - name: E2E API (Testcontainers needs Docker on ubuntu-latest)
+        run: npm --prefix backend test
+      - name: Integration (leaderboard + idempotency, Mongo)
+        run: npm --prefix backend run test:integration
+      - name: Full-stack UI E2E (browser to backend to Mongo)
+        run: npm --prefix backend run test:e2e:ui
