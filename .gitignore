@@ -52,7 +52,6 @@ out/
 # Miscellaneous
 .claude/
 *.pid
-design.pen
 
 # Custom ignore patterns for backend
 *.local.*
