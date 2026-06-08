@@ -1,0 +1,22 @@
+{
+  "name": "cryptoclicker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build --prefix client && npm run build --prefix backend",
+    "start": "npm run start --prefix backend",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "typecheck": "npm --prefix backend run typecheck && npm --prefix client run typecheck",
+    "test": "npm --prefix backend run test:unit && npm --prefix backend run test:integration && npm --prefix backend test && npm --prefix client test",
+    "test:ui": "npm --prefix backend run test:e2e:ui"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "eslint": "^9.9.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3",
+    "typescript-eslint": "^8.2.0"
+  }
+}
