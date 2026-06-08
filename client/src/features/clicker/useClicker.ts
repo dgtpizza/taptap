@@ -54,6 +54,14 @@ function queueKey(): string {
   return `cryptoclicker:clicker-queue:${getWebApp()?.initDataUnsafe.user?.id ?? 'dev'}`
 }
 
+function trimStoredQueue(queue: StoredQueue): StoredQueue | null {
+  const inFlight = queue.inFlight
+  const pendingBudget = Math.max(0, MAX_BATCH - (inFlight?.count ?? 0))
+  const pending = Math.min(queue.pending, pendingBudget)
+  if (pending <= 0 && inFlight === null) return null
+  return { pending, inFlight }
+}
+
 function readStoredQueue(): StoredQueue | null {
   try {
     const raw = window.localStorage.getItem(queueKey())
@@ -63,16 +71,19 @@ function readStoredQueue(): StoredQueue | null {
       typeof parsed.pending === 'number' && Number.isInteger(parsed.pending) && parsed.pending > 0
         ? parsed.pending
         : 0
-    return {
+    return trimStoredQueue({
       pending,
       inFlight:
         parsed.inFlight &&
         Number.isInteger(parsed.inFlight.count) &&
         parsed.inFlight.count > 0 &&
-        typeof parsed.inFlight.nonce === 'string'
+        parsed.inFlight.count <= MAX_BATCH &&
+        typeof parsed.inFlight.nonce === 'string' &&
+        parsed.inFlight.nonce.length > 0 &&
+        parsed.inFlight.nonce.length <= 64
           ? { count: parsed.inFlight.count, nonce: parsed.inFlight.nonce }
           : null,
-    }
+    })
   } catch {
     return null
   }

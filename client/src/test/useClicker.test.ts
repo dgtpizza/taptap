@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Mock } from 'vitest'
 import { act, renderHook, waitFor } from '@testing-library/react'
+import { MAX_BATCH } from '@shared/constants'
 import type { ClicksResponse, MeResponse } from '@shared/contract'
 
 vi.mock('@/shared/api', async (importOriginal) => {
@@ -25,6 +26,7 @@ function clicksResp(over: Partial<ClicksResponse> = {}): ClicksResponse {
 beforeEach(() => {
   meMock.mockReset()
   clicksMock.mockReset()
+  window.localStorage.clear()
   vi.spyOn(crypto, 'randomUUID').mockReturnValue('00000000-0000-0000-0000-000000000000')
 })
 
@@ -287,6 +289,21 @@ describe('useClicker - batch flushing', () => {
     })
 
     expect(clicksMock).toHaveBeenCalledWith(3, 'stored-batch', false)
+  })
+
+  it('caps a restored local queue to one server batch', async () => {
+    window.localStorage.setItem('cryptoclicker:clicker-queue:dev', JSON.stringify({ pending: 9999, inFlight: null }))
+    meMock.mockResolvedValueOnce(me({ clicks: 100, energy: 1000 }))
+    clicksMock.mockResolvedValueOnce(clicksResp({ clicks: 120, energy: 980, accepted: MAX_BATCH }))
+
+    const { result } = await mountReady()
+    expect(result.current.clicks).toBe(100 + MAX_BATCH)
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000)
+    })
+
+    expect(clicksMock).toHaveBeenCalledWith(MAX_BATCH, expect.any(String), false)
   })
 
   it('re-queues clicks the server did not accept so the total never regresses', async () => {
