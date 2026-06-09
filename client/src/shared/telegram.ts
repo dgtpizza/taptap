@@ -14,10 +14,7 @@ type WebApp = {
   expand: () => void
   requestFullscreen?: () => void
   disableVerticalSwipes?: () => void
-  HapticFeedback?: {
-    impactOccurred: (style: 'light' | 'medium' | 'heavy') => void
-    selectionChanged?: () => void
-  }
+  HapticFeedback?: { impactOccurred: (style: 'light' | 'medium' | 'heavy') => void }
 }
 
 declare global {
@@ -43,14 +40,6 @@ export function hapticTap(): void {
     getWebApp()?.HapticFeedback?.impactOccurred('light')
   } catch {
     // Telegram SDK integrations should never block a tap.
-  }
-}
-
-export function hapticSelection(): void {
-  try {
-    getWebApp()?.HapticFeedback?.selectionChanged?.()
-  } catch {
-    // Telegram SDK integrations should never block navigation.
   }
 }
 

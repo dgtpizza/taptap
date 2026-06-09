@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { keys, t } from '@/shared/i18n'
-import { hapticSelection } from '@/shared/telegram'
+import { hapticTap } from '@/shared/telegram'
 import { StarFourIcon, TrophyIcon } from '@/shared/ui/icons'
 
 const tabs = [
@@ -43,9 +43,7 @@ export function AppTabBar() {
           ref={(el) => {
             refs.current[to] = el
           }}
-          onClick={() => {
-            if (pathname !== to) hapticSelection()
-          }}
+          onClick={() => hapticTap()}
           data-testid={testId}
           className={({ isActive }) =>
             `relative z-10 flex h-12 items-center justify-center gap-1.5 rounded-pill px-[18px] text-sm font-semibold no-underline transition-colors ${
