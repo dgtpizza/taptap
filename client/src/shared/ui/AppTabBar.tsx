@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { keys, t } from '@/shared/i18n'
+import { hapticSelection } from '@/shared/telegram'
 import { StarFourIcon, TrophyIcon } from '@/shared/ui/icons'
 
 const tabs = [
@@ -41,6 +42,9 @@ export function AppTabBar() {
           end={to === '/'}
           ref={(el) => {
             refs.current[to] = el
+          }}
+          onClick={() => {
+            if (pathname !== to) hapticSelection()
           }}
           data-testid={testId}
           className={({ isActive }) =>
