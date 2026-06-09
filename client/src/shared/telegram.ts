@@ -12,6 +12,7 @@ type WebApp = {
   initDataUnsafe: { user?: TgUser }
   ready: () => void
   expand: () => void
+  requestFullscreen?: () => void
   disableVerticalSwipes?: () => void
   HapticFeedback?: { impactOccurred: (style: 'light' | 'medium' | 'heavy') => void }
 }
@@ -48,6 +49,7 @@ export function useTelegram(): void {
     try {
       wa?.ready()
       wa?.expand()
+      wa?.requestFullscreen?.()
       wa?.disableVerticalSwipes?.()
     } catch {
       // The host WebView owns these optional integrations; app rendering must keep going.
